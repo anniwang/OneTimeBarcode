@@ -50,7 +50,7 @@ namespace Shared
             var buff = new byte[coeffLength];
             rand.NextBytes(buff);
 
-            return new BigInteger(buff);
+            return BigInteger.Abs(new BigInteger(buff));
         }
 
         // hashes shared password with SHA-256 to get Kab

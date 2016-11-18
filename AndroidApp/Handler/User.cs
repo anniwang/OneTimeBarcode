@@ -29,7 +29,14 @@ namespace AndroidApp.Handler
 
         public string GetProperty(string prop)
         {
-            return this.acc.Properties[prop];
+            if (this.acc.Properties.ContainsKey(prop))
+            {
+                return this.acc.Properties[prop];
+            }
+            else
+            {
+                return "";
+            }
         }
 
         public void SetProperty(string prop, string value)
@@ -43,8 +50,7 @@ namespace AndroidApp.Handler
             get
             {
                 return (this.acc != null
-                  && this.acc.Properties.ContainsKey("Token")
-                  && string.IsNullOrEmpty(this.acc.Properties["Token"]));
+                        && !string.IsNullOrEmpty(this.acc.Properties[UserConstants.Token]));
             }
         }
     }

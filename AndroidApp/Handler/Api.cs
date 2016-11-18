@@ -17,21 +17,18 @@ namespace AndroidApp.Handler
 {
     public class Api
     {
-        private const string serverUrl = "http://10.0.2.2:60203/";
-        private HttpClient client;
+        private const string serverUrl = "http://192.168.0.16:8080/";
+
         private string token;
         private User user;
 
         public Api(User user)
         {
             this.user = user;
-            initClient();
         }
 
-        private void initClient()
+        private void addAuthHeader(HttpClient client)
         {
-            this.client = new HttpClient(new HttpClientHandler(), false);
-            this.client.MaxResponseContentBufferSize = 256000;
             if (user.IsLoggedIn)
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
@@ -51,6 +48,7 @@ namespace AndroidApp.Handler
                 };
 
                 var content = new FormUrlEncodedContent(info);
+                var client = new HttpClient();
                 var response = await client.PostAsync(serverUrl + "token", content);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
@@ -60,33 +58,35 @@ namespace AndroidApp.Handler
                 var resp = JsonConvert.DeserializeObject<LoginResultModel>(strResponse);
 
                 user.SetProperty(UserConstants.Token, resp.access_token);
-                initClient();
                 return true;
             }
             catch (WebException ex)
             {
-                using (var stream = ex.Response.GetResponseStream())
-                using (var reader = new StreamReader(stream))
-                {
-                    var err = reader.ReadToEnd();
-                    Console.WriteLine(err);
-                }
-                return false;
+                handleWebException(ex);
+                throw;
             }
         }
 
         public async Task RequestSharedKey()
         {
-            DiffieHellman DH = new DiffieHellman();
-            var mypublic = DH.GetMyPublic();
-            var serverKey = await PostApi<string>("api/barcode", new { key = mypublic });
+            try
+            {
+                DiffieHellman DH = new DiffieHellman();
+                var mypublic = DH.GetMyPublic();
+                var serverKey =
+                    await PostApi<string>("api/barcode", new {key = mypublic}, authenticate: true, throwIfNotOK: true);
 
-            var key = DH.getFinalKey(BigInteger.Parse(serverKey));
+                var key = DH.getFinalKey(BigInteger.Parse(serverKey));
 
-            // assume logged in if you're calling this.
-            // not checking here.
-            var stringKey = Convert.ToBase64String(key);
-            user.SetProperty(UserConstants.SECRET,stringKey);
+                // assume logged in if you're calling this.
+                // not checking here.
+                var stringKey = Convert.ToBase64String(key);
+                user.SetProperty(UserConstants.SECRET, stringKey);
+            }
+            catch (WebException e)
+            {
+                handleWebException(e);
+            }
         }
 
         public async Task GetMembershipId()
@@ -99,11 +99,15 @@ namespace AndroidApp.Handler
             return await PostApi<RegisterResultModel>("api/account/register", new { username, password, confirmpassword });
         }
 
-        private async Task<T> PostApi<T>(string invoke, dynamic param, bool throwIfNotOK = false)
+        private async Task<T> PostApi<T>(string invoke, dynamic param, bool throwIfNotOK = false, bool authenticate = false)
         {
             var json = JsonConvert.SerializeObject(param);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-
+            var client = new HttpClient();
+            if (authenticate)
+            {
+                addAuthHeader(client);
+            }
             var response = await client.PostAsync(serverUrl + invoke, content);
 
             var strResponse = await response.Content.ReadAsStringAsync();
@@ -112,6 +116,24 @@ namespace AndroidApp.Handler
                 throw new WebException(response.StatusCode + " " + strResponse);
             }
             return JsonConvert.DeserializeObject<T>(strResponse);
+        }
+
+        private void handleWebException(WebException ex)
+        {
+            try
+            {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    var err = reader.ReadToEnd();
+                    Console.WriteLine(err);
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("could not write response error from server");
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }

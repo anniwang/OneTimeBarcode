@@ -20,7 +20,7 @@ namespace AndroidApp
         private const int LOGIN_ACTIVITY = 0;
         private User user;
         private Barcode barcodeGenerator ;
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
@@ -35,6 +35,11 @@ namespace AndroidApp
             }
             else
             {
+                if (string.IsNullOrEmpty(user.GetProperty(UserConstants.SECRET)))
+                {
+                    var api = new Api(user);
+                    await api.RequestSharedKey();
+                }
                 initBarcode();
             }
         }

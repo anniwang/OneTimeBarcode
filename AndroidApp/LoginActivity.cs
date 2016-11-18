@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Android.App;
 using Android.Content;
 using Android.Widget;
@@ -29,17 +30,24 @@ namespace AndroidApp
             
             btnLogin.Click += async (object sender, EventArgs e) =>
             {
-                var api = new Api(user);
-                if (await api.Login(username.Text, password.Text))
+                try
                 {
-                    await api.GetMembershipId();
-                    await api.RequestSharedKey();
+                    var api = new Api(user);
+                    if (await api.Login(username.Text, password.Text))
+                    {
+                        await api.GetMembershipId();
+                        await api.RequestSharedKey();
 
-                    this.Finish();
+                        this.Finish();
+                    }
+                    else
+                    {
+                        Toast.MakeText(this, "Username or Password is Incorrect", ToastLength.Short).Show();
+                    }
                 }
-                else
+                catch (WebException)
                 {
-                    Toast.MakeText(this, "Username or Password is Incorrect", ToastLength.Short);
+                    Toast.MakeText(this, "Unstable server connection", ToastLength.Short).Show();
                 }
             };
             btnRegister.Click += async (object sender, EventArgs e) =>

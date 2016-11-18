@@ -35,11 +35,11 @@ namespace AndroidApp
                 var res = await api.Register(username.Text, password.Text, confirmpassword.Text);
                 if (res.Error && res.ModelState.Any())
                 {
-                    Toast.MakeText(this, res.ModelState.First().Value.First(), ToastLength.Short);
+                    Toast.MakeText(this, res.ModelState.First().Value.First(), ToastLength.Short).Show();
                 }
                 else
                 {
-                    Toast.MakeText(this, "Registration Complete", ToastLength.Short);
+                    Toast.MakeText(this, "Registration Complete", ToastLength.Short).Show();
                     this.Finish();
                 }
             };

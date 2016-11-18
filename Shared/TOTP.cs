@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using OtpSharp;
+using Yort.Otp;
 
 namespace Shared
 {
@@ -13,22 +13,23 @@ namespace Shared
         private const int digits = 8;
         private const int period = 10;
         private string secret;
-        private Totp totp;
+        private TimeBasedPasswordGenerator totp;
 
         public TOTP(byte[] secret)
         {
-            this.totp = new Totp(secret, period, OtpHashMode.Sha512,digits);
+            this.totp = new TimeBasedPasswordGenerator(true, secret);
+            this.totp.TimeInterval = TimeSpan.FromSeconds(period);
+            this.totp.PasswordLength = digits;
         }
 
         public string GetCode()
         {
-            return totp.ComputeTotp();
+            return totp.GeneratedPassword;
         }
 
         public bool ConfirmCode(string code)
         {
-            long ts;
-            return totp.VerifyTotp(code, out ts);
+            return this.totp.GeneratedPassword.Equals(code);
         }
     }
 }

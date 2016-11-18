@@ -25,6 +25,10 @@ namespace AndroidApp.Handler
 
         public Barcode(User _user)
         {
+            if (!_user.IsLoggedIn || string.IsNullOrEmpty(_user.GetProperty(UserConstants.SECRET)))
+            {
+                throw new UnauthorizedAccessException();
+            }
             this.user = _user;
             this.memberid = user.GetProperty(UserConstants.MemberID);
             var secret = user.GetProperty(UserConstants.SECRET);
@@ -40,15 +44,12 @@ namespace AndroidApp.Handler
 
         private Bitmap makeBarcode(string data)
         {
-            var writer = new BarcodeWriter
+            var writer = new ZXing.Mobile.BarcodeWriter
             {
                 Format = BarcodeFormat.PDF_417,
-                Options = new EncodingOptions { Width = 200, Height = 50 } //optional
+                Options = new EncodingOptions { Width = 1000, Height = 400 }
             };
-            var bytes = writer.Write(data);
-            var imgBitMap = BitmapFactory.DecodeByteArray(bytes, 0, bytes.Length);
-            return imgBitMap;
-            return null;
+            return writer.Write(data);
         }
     }
 }
