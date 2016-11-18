@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -7,38 +8,37 @@ using System.Net.Http.Headers;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Newtonsoft.Json;
-using Org.Apache.Http.Client.Params;
 using Shared;
 using Shared.Models;
 using Xamarin.Auth;
 
-namespace AndroidApp.ApiHandler
+namespace AndroidApp.Handler
 {
     public class Api
     {
         private const string serverUrl = "http://10.0.2.2:60203/";
         private HttpClient client;
         private string token;
+        private User user;
 
-        public Api()
+        public Api(User user)
         {
-            //use New API after loggin in or out
-            this.client = new HttpClient();
+            this.user = user;
+            initClient();
+        }
+
+        private void initClient()
+        {
+            this.client = new HttpClient(new HttpClientHandler(), false);
             this.client.MaxResponseContentBufferSize = 256000;
-            var acc = AccountStore.Create().FindAccountsForService("ExpiringBarcode").First();
-            if (acc != null && acc.Properties.ContainsKey("Token"))
+            if (user.IsLoggedIn)
             {
-                this.token = acc.Properties["Token"];
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
+                    user.GetProperty("Token"));
             }
         }
+
         public async Task<bool> Login(string username, string password)
         {
             try
@@ -54,17 +54,23 @@ namespace AndroidApp.ApiHandler
                 var response = await client.PostAsync(serverUrl + "token", content);
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    throw new UnauthorizedAccessException();
+                    return false;
                 }
                 var strResponse = await response.Content.ReadAsStringAsync();
                 var resp = JsonConvert.DeserializeObject<LoginResultModel>(strResponse);
 
-                var acc = new Account(resp.access_token);
-                AccountStore.Create().Save(acc, "Token");
+                user.SetProperty("Token", resp.access_token);
+                initClient();
                 return true;
             }
-            catch (UnauthorizedAccessException)
+            catch (WebException ex)
             {
+                using (var stream = ex.Response.GetResponseStream())
+                using (var reader = new StreamReader(stream))
+                {
+                    var err = reader.ReadToEnd();
+                    Console.WriteLine(err);
+                }
                 return false;
             }
         }
@@ -79,9 +85,7 @@ namespace AndroidApp.ApiHandler
 
             // assume logged in if you're calling this.
             // not checking here.
-            var acc = AccountStore.Create().FindAccountsForService("ExpiringBarcode").First();
-            acc.Properties.Add("BarcodeSharedSecret",key.ToString()); //todo: tostring() probably doesn't work.
-            AccountStore.Create().Save(acc, "userInfo");
+            user.SetProperty("BarcodeSharedSecret",key.ToString()); //todo: toString probably doesn't work. need real way to store byte[] to string
         }
 
         public async Task GetMembershipId()

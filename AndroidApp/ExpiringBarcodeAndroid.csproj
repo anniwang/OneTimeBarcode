@@ -74,7 +74,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiHandler\Api.cs" />
+    <Compile Include="Handler\User.cs" />
+    <Compile Include="Handler\Api.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="LoginActivity.cs" />
     <Compile Include="RegisterActivity.cs" />

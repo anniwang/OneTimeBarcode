@@ -3,7 +3,7 @@ using Android.App;
 using Android.Content;
 using Android.Widget;
 using Android.OS;
-using AndroidApp.ApiHandler;
+using AndroidApp.Handler;
 using Xamarin.Auth;
 
 
@@ -12,9 +12,12 @@ namespace AndroidApp
     [Activity(Label = "Please Log In")]
     public class LoginActivity : Activity
     {
+        private User user;
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
+
+            user = new User();
 
             // Set our view from the "main" layout resource
             SetContentView (Resource.Layout.Login);
@@ -26,12 +29,11 @@ namespace AndroidApp
             
             btnLogin.Click += async (object sender, EventArgs e) =>
             {
-                var api = new Api();
+                var api = new Api(user);
                 if (await api.Login(username.Text, password.Text))
                 {
-                    api = new Api(); // use new API to use authenticated requests
-                    api.GetMembershipId();
-                    api.RequestSharedKey();
+                    await api.GetMembershipId();
+                    await api.RequestSharedKey();
 
                     this.Finish();
                 }

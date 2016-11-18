@@ -9,7 +9,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using AndroidApp.ApiHandler;
+using AndroidApp.Handler;
 
 namespace AndroidApp
 {
@@ -21,11 +21,10 @@ namespace AndroidApp
         {
             base.OnCreate(savedInstanceState);
 
-            this.api = new Api();
+            this.api = new Api(new User());
             // Create your application here
             SetContentView(Resource.Layout.Register);
-
-            //TODO UI
+            
             EditText username = FindViewById<EditText>(Resource.Id.username);
             EditText password = FindViewById<EditText>(Resource.Id.password);
             EditText confirmpassword = FindViewById<EditText>(Resource.Id.confirmpassword);
