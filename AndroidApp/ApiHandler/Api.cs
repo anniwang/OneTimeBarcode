@@ -32,10 +32,10 @@ namespace AndroidApp.ApiHandler
             //use New API after loggin in or out
             this.client = new HttpClient();
             this.client.MaxResponseContentBufferSize = 256000;
-            IEnumerable<Account> accounts = AccountStore.Create().FindAccountsForService("ExpiringBarcode");
-            if (accounts.Any() && accounts.First().Properties.ContainsKey("Token"))
+            var acc = AccountStore.Create().FindAccountsForService("ExpiringBarcode").First();
+            if (acc != null && acc.Properties.ContainsKey("Token"))
             {
-                this.token = accounts.First().Username;
+                this.token = acc.Properties["Token"];
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
         }
