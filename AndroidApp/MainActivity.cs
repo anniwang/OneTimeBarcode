@@ -19,6 +19,7 @@ namespace AndroidApp
     {
         private const int LOGIN_ACTIVITY = 0;
         private User user;
+        private Barcode barcodeGenerator ;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -32,12 +33,24 @@ namespace AndroidApp
             {
                 requireLogin();
             }
+            else
+            {
+                initBarcode();
+            }
         }
 
         private void requireLogin()
         {
             var intent = new Intent(this, typeof(LoginActivity));
             StartActivityForResult(intent, LOGIN_ACTIVITY);
+        }
+
+        private void initBarcode()
+        {
+            this.barcodeGenerator = new Barcode(this.user);
+            var barcodeImage = FindViewById<ImageView>(Resource.Id.barcodeImage);
+            barcodeImage.SetImageBitmap(barcodeGenerator.CurrentCode());
+            //find a way to refresh every 30 sec
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -48,6 +61,7 @@ namespace AndroidApp
                 {
                     //reset user
                     user = new User();
+                    initBarcode();
                 }
                 else
                 {

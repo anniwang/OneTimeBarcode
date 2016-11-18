@@ -37,7 +37,7 @@ namespace AndroidApp.Handler
             this.acc.Properties[prop] = value;
             AccountStore.Create().Save(acc, "ExpiringBarcode");
         }
-
+        
         public bool IsLoggedIn
         {
             get

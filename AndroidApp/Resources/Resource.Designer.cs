@@ -28,6 +28,9 @@ namespace AndroidApp
 		{
 			global::PCLCrypto.Resource.String.ApplicationName = global::AndroidApp.Resource.String.ApplicationName;
 			global::PCLCrypto.Resource.String.Hello = global::AndroidApp.Resource.String.Hello;
+			global::ZXing.Mobile.Resource.Id.contentFrame = global::AndroidApp.Resource.Id.contentFrame;
+			global::ZXing.Mobile.Resource.Layout.zxingscanneractivitylayout = global::AndroidApp.Resource.Layout.zxingscanneractivitylayout;
+			global::ZXing.Mobile.Resource.Layout.zxingscannerfragmentlayout = global::AndroidApp.Resource.Layout.zxingscannerfragmentlayout;
 		}
 		
 		public partial class Attribute
@@ -62,14 +65,20 @@ namespace AndroidApp
 		public partial class Id
 		{
 			
+			// aapt resource value: 0x7f050006
+			public const int barcodeImage = 2131034118;
+			
 			// aapt resource value: 0x7f050004
 			public const int btnLogin = 2131034116;
 			
 			// aapt resource value: 0x7f050005
 			public const int btnRegister = 2131034117;
 			
-			// aapt resource value: 0x7f050007
-			public const int confirmpassword = 2131034119;
+			// aapt resource value: 0x7f050008
+			public const int confirmpassword = 2131034120;
+			
+			// aapt resource value: 0x7f050009
+			public const int contentFrame = 2131034121;
 			
 			// aapt resource value: 0x7f050003
 			public const int password = 2131034115;
@@ -80,8 +89,8 @@ namespace AndroidApp
 			// aapt resource value: 0x7f050002
 			public const int textView2 = 2131034114;
 			
-			// aapt resource value: 0x7f050006
-			public const int textView3 = 2131034118;
+			// aapt resource value: 0x7f050007
+			public const int textView3 = 2131034119;
 			
 			// aapt resource value: 0x7f050001
 			public const int username = 2131034113;
@@ -107,6 +116,12 @@ namespace AndroidApp
 			
 			// aapt resource value: 0x7f030002
 			public const int Register = 2130903042;
+			
+			// aapt resource value: 0x7f030003
+			public const int zxingscanneractivitylayout = 2130903043;
+			
+			// aapt resource value: 0x7f030004
+			public const int zxingscannerfragmentlayout = 2130903044;
 			
 			static Layout()
 			{

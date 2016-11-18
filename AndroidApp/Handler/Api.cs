@@ -35,7 +35,7 @@ namespace AndroidApp.Handler
             if (user.IsLoggedIn)
             {
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer",
-                    user.GetProperty("Token"));
+                    user.GetProperty(UserConstants.Token));
             }
         }
 
@@ -59,7 +59,7 @@ namespace AndroidApp.Handler
                 var strResponse = await response.Content.ReadAsStringAsync();
                 var resp = JsonConvert.DeserializeObject<LoginResultModel>(strResponse);
 
-                user.SetProperty("Token", resp.access_token);
+                user.SetProperty(UserConstants.Token, resp.access_token);
                 initClient();
                 return true;
             }
@@ -85,7 +85,8 @@ namespace AndroidApp.Handler
 
             // assume logged in if you're calling this.
             // not checking here.
-            user.SetProperty("BarcodeSharedSecret",key.ToString()); //todo: toString probably doesn't work. need real way to store byte[] to string
+            var stringKey = Convert.ToBase64String(key);
+            user.SetProperty(UserConstants.SECRET,stringKey);
         }
 
         public async Task GetMembershipId()
