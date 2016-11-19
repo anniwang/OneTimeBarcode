@@ -14,7 +14,7 @@ namespace ExpiringBarcode.Controllers
         // GET: Validate
         public string Index(string barcode)
         {
-            if (!Regex.IsMatch(barcode, @"^\d+$") || barcode.Length != 12 + TOTP.digits)
+            if (barcode.Length != 12 + TOTP.digits || barcode.Any(a=>!"0123456789".Contains(a)))
             {
                 return "data not in correct format";
             }
