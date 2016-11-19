@@ -10,9 +10,10 @@ namespace Shared
 {
     public class TOTP
     {
-        private const int digits = 8;
-        private const int period = 10;
-        private string secret;
+        public const int digits = 8; // digits of code
+        public const int period = 10; // interval for new TOTP in seconds
+        public const int tolerance = 1; // how many cycles back to tolerate
+        private byte[] secret;
         private TimeBasedPasswordGenerator totp;
 
         public TOTP(byte[] secret)
@@ -20,6 +21,7 @@ namespace Shared
             this.totp = new TimeBasedPasswordGenerator(true, secret);
             this.totp.TimeInterval = TimeSpan.FromSeconds(period);
             this.totp.PasswordLength = digits;
+            this.secret = secret;
         }
 
         public string GetCode()
@@ -29,7 +31,23 @@ namespace Shared
 
         public bool ConfirmCode(string code)
         {
-            return this.totp.GeneratedPassword.Equals(code);
+            var time = DateTime.UtcNow;
+            if (this.totp.GeneratedPassword.Equals(code))
+            {
+                return true;
+            }
+            for (var i = 0; i < tolerance; i++)
+            {
+                var tmpTotp = new TimeBasedPasswordGenerator(true, this.secret);
+                tmpTotp.TimeInterval = TimeSpan.FromSeconds(period);
+                tmpTotp.Timestamp = time.AddSeconds(-period);
+
+                if (tmpTotp.GeneratedPassword.Equals(code))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
