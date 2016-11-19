@@ -27,7 +27,7 @@ namespace AndroidApp.Handler
             this.user = user;
         }
 
-        private void addAuthHeader(HttpClient client)
+        private void AddAuthHeader(HttpClient client)
         {
             if (user.IsLoggedIn)
             {
@@ -57,6 +57,7 @@ namespace AndroidApp.Handler
                 var strResponse = await response.Content.ReadAsStringAsync();
                 var resp = JsonConvert.DeserializeObject<LoginResultModel>(strResponse);
 
+                user.SetProperty(UserConstants.Email, username);
                 user.SetProperty(UserConstants.Token, resp.access_token);
                 return true;
             }
@@ -67,6 +68,11 @@ namespace AndroidApp.Handler
             }
         }
 
+        public async Task LogOut()
+        {
+            await PostApi<string>("api/Account/Logout", null, authenticate: true);
+        }
+
         public async Task RequestSharedKey()
         {
             try
@@ -74,7 +80,7 @@ namespace AndroidApp.Handler
                 DiffieHellman DH = new DiffieHellman();
                 var mypublic = DH.GetMyPublic();
                 var serverKey =
-                    await PostApi<string>("api/barcode", new {key = mypublic}, authenticate: true, throwIfNotOK: true);
+                    await PostApi<string>("api/barcode", new { key = mypublic }, authenticate: true, throwIfNotOK: true);
 
                 var key = DH.getFinalKey(BigInteger.Parse(serverKey));
 
@@ -91,12 +97,21 @@ namespace AndroidApp.Handler
 
         public async Task GetMembershipId()
         {
-            //TODO: make server api to return membership id and store it in acc. refer to RequestSharedKey
+            try
+            {
+                var memberId =
+                    await GetApi<string>("api/member", authenticate: true, throwIfNotOK: true);
+                user.SetProperty(UserConstants.MemberID, memberId);
+            }
+            catch (WebException e)
+            {
+                handleWebException(e);
+            }
         }
 
         public async Task<RegisterResultModel> Register(string username, string password, string confirmpassword)
         {
-            return await PostApi<RegisterResultModel>("api/account/register", new { username, password, confirmpassword });
+            return await PostApi<RegisterResultModel>("api/account/register", new { email = username, password, confirmpassword });
         }
 
         private async Task<T> PostApi<T>(string invoke, dynamic param, bool throwIfNotOK = false, bool authenticate = false)
@@ -106,9 +121,31 @@ namespace AndroidApp.Handler
             var client = new HttpClient();
             if (authenticate)
             {
-                addAuthHeader(client);
+                AddAuthHeader(client);
             }
             var response = await client.PostAsync(serverUrl + invoke, content);
+
+            if (authenticate && response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var strResponse = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode != HttpStatusCode.OK && throwIfNotOK)
+            {
+                throw new WebException(response.StatusCode + " " + strResponse);
+            }
+            return JsonConvert.DeserializeObject<T>(strResponse);
+        }
+
+        private async Task<T> GetApi<T>(string invoke, bool throwIfNotOK = false, bool authenticate = false)
+        {
+            var client = new HttpClient();
+            if (authenticate)
+            {
+                AddAuthHeader(client);
+            }
+            var response = await client.GetAsync(serverUrl + invoke);
 
             var strResponse = await response.Content.ReadAsStringAsync();
             if (response.StatusCode != HttpStatusCode.OK && throwIfNotOK)

@@ -50,8 +50,14 @@ namespace AndroidApp.Handler
             get
             {
                 return (this.acc != null
-                        && !string.IsNullOrEmpty(this.acc.Properties[UserConstants.Token]));
+                        && !string.IsNullOrEmpty(this.GetProperty(UserConstants.Token)));
             }
+        }
+
+        public void RequestLogout()
+        {
+            AccountStore.Create().Delete(this.acc, "ExpiringBarcode");
+            this.acc = new Account("User");
         }
     }
 }

@@ -22,6 +22,8 @@ namespace AndroidApp.Handler
         private User user;
         private string memberid;
         private TOTP totp;
+        private Bitmap cacheBitmap;
+        private string cacheData;
 
         public Barcode(User _user)
         {
@@ -34,12 +36,26 @@ namespace AndroidApp.Handler
             var secret = user.GetProperty(UserConstants.SECRET);
             var secretBytes = Convert.FromBase64String(secret);
             this.totp = new TOTP(secretBytes);
+            this.cacheBitmap = null;
+            this.cacheData = "";
         }
 
-        public Bitmap CurrentCode()
+        public Bitmap CurrentBarCode()
         {
             var data = memberid + totp.GetCode();
-            return this.makeBarcode(data);
+            if (this.cacheData.Equals(data) && this.cacheBitmap != null)
+            {
+                return this.cacheBitmap;
+            }
+            var barcode = this.makeBarcode(data);
+            this.cacheData = data;
+            this.cacheBitmap = barcode;
+            return barcode;
+        }
+
+        public string CurrentCode()
+        {
+            return this.totp.GetCode();
         }
 
         private Bitmap makeBarcode(string data)

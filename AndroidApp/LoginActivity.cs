@@ -38,6 +38,9 @@ namespace AndroidApp
                         await api.GetMembershipId();
                         await api.RequestSharedKey();
 
+                        Toast.MakeText(this, "You have successfully signed in.", ToastLength.Short).Show();
+
+                        this.SetResult(Result.Ok);
                         this.Finish();
                     }
                     else

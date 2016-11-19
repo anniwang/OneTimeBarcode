@@ -10,6 +10,8 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidApp.Handler;
+using Org.Apache.Http.Impl.Conn;
+using Shared;
 using Xamarin.Auth;
 
 namespace AndroidApp
@@ -19,7 +21,9 @@ namespace AndroidApp
     {
         private const int LOGIN_ACTIVITY = 0;
         private User user;
-        private Barcode barcodeGenerator ;
+        private Barcode barcodeGenerator;
+        private System.Timers.Timer timer;
+
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -29,33 +33,95 @@ namespace AndroidApp
             // Create your application here
             SetContentView(Resource.Layout.Main);
 
+            Button btnLogOut = FindViewById<Button>(Resource.Id.btnLogOut);
+
+            btnLogOut.Click += async (object sender, EventArgs e) =>
+            {
+                LogOut();
+            };
+
             if (!user.IsLoggedIn)
             {
-                requireLogin();
+                RequireLogin();
             }
             else
             {
-                if (string.IsNullOrEmpty(user.GetProperty(UserConstants.SECRET)))
+                try
                 {
-                    var api = new Api(user);
-                    await api.RequestSharedKey();
+                    if (string.IsNullOrEmpty(user.GetProperty(UserConstants.MemberID)))
+                    {
+                        var api = new Api(user);
+                        await api.GetMembershipId();
+                    }
+                    if (string.IsNullOrEmpty(user.GetProperty(UserConstants.SECRET)))
+                    {
+                        var api = new Api(user);
+                        await api.RequestSharedKey();
+                    }
+
+                    Initialize();
                 }
-                initBarcode();
+                catch (UnauthorizedAccessException e)
+                {
+                    LogOut();
+                }
             }
         }
 
-        private void requireLogin()
+        private void RequireLogin()
         {
             var intent = new Intent(this, typeof(LoginActivity));
             StartActivityForResult(intent, LOGIN_ACTIVITY);
         }
 
-        private void initBarcode()
+        private async void LogOut()
         {
+            if (timer.Enabled)
+            {
+                timer.Stop();
+            }
+            var api = new Api(user);
+            await api.LogOut();
+            user.RequestLogout();
+            Toast.MakeText(this, "You have ben logged out.", ToastLength.Short).Show();
+            RequireLogin();
+        }
+
+        private void Initialize()
+        {
+            TextView memberIdField = FindViewById<TextView>(Resource.Id.memberID);
+            TextView secretField = FindViewById<TextView>(Resource.Id.secret);
+            TextView loggedInAsField = FindViewById<TextView>(Resource.Id.loggedInAs);
+
+            var secret = Convert.FromBase64String(user.GetProperty(UserConstants.SECRET));
+            var secretHumanString = secret.ByteArrToStr();
+
+            RunOnUiThread(() => loggedInAsField.Text = user.GetProperty(UserConstants.Email));
+            RunOnUiThread(() => memberIdField.Text = user.GetProperty(UserConstants.MemberID));
+            RunOnUiThread(() => secretField.Text = secretHumanString);
+
             this.barcodeGenerator = new Barcode(this.user);
+            this.timer = new System.Timers.Timer();
+            this.timer.Interval = 1000;
+            this.timer.Elapsed += OnTimedEvent;
+            this.timer.Enabled = true;
+            RefreshBarcode();
+        }
+
+        private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            RefreshBarcode();
+        }
+
+        private void RefreshBarcode()
+        {
             var barcodeImage = FindViewById<ImageView>(Resource.Id.barcodeImage);
-            barcodeImage.SetImageBitmap(barcodeGenerator.CurrentCode());
-            //find a way to refresh every 30 sec
+            TextView codeField = FindViewById<TextView>(Resource.Id.TOTP);
+
+            var barcode = barcodeGenerator.CurrentBarCode();
+            var code = barcodeGenerator.CurrentCode();
+            RunOnUiThread(() => barcodeImage.SetImageBitmap(barcode));
+            RunOnUiThread(() => codeField.Text = code);
         }
 
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -66,11 +132,11 @@ namespace AndroidApp
                 {
                     //reset user
                     user = new User();
-                    initBarcode();
+                    Initialize();
                 }
                 else
                 {
-                    requireLogin();
+                    RequireLogin();
                 }
             }
         }
