@@ -15,7 +15,7 @@ using Shared;
 using ZXing;
 using ZXing.Common;
 
-namespace AndroidApp.Handler
+namespace ExpiringBarcodeDemo.Handler
 {
     public class Barcode
     {

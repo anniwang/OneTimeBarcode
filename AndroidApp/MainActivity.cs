@@ -9,12 +9,12 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using AndroidApp.Handler;
+using ExpiringBarcodeDemo.Handler;
 using Org.Apache.Http.Impl.Conn;
 using Shared;
 using Xamarin.Auth;
 
-namespace AndroidApp
+namespace ExpiringBarcodeDemo
 {
     [Activity(Label = "Expiring Barcode Demo App", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : Activity

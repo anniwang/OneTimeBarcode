@@ -9,9 +9,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Android.Runtime.ResourceDesignerAttribute("AndroidApp.Resource", IsApplication=true)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("ExpiringBarcodeDemo.Resource", IsApplication=true)]
 
-namespace AndroidApp
+namespace ExpiringBarcodeDemo
 {
 	
 	
@@ -26,11 +26,11 @@ namespace AndroidApp
 		
 		public static void UpdateIdValues()
 		{
-			global::PCLCrypto.Resource.String.ApplicationName = global::AndroidApp.Resource.String.ApplicationName;
-			global::PCLCrypto.Resource.String.Hello = global::AndroidApp.Resource.String.Hello;
-			global::ZXing.Mobile.Resource.Id.contentFrame = global::AndroidApp.Resource.Id.contentFrame;
-			global::ZXing.Mobile.Resource.Layout.zxingscanneractivitylayout = global::AndroidApp.Resource.Layout.zxingscanneractivitylayout;
-			global::ZXing.Mobile.Resource.Layout.zxingscannerfragmentlayout = global::AndroidApp.Resource.Layout.zxingscannerfragmentlayout;
+			global::PCLCrypto.Resource.String.ApplicationName = global::ExpiringBarcodeDemo.Resource.String.ApplicationName;
+			global::PCLCrypto.Resource.String.Hello = global::ExpiringBarcodeDemo.Resource.String.Hello;
+			global::ZXing.Mobile.Resource.Id.contentFrame = global::ExpiringBarcodeDemo.Resource.Id.contentFrame;
+			global::ZXing.Mobile.Resource.Layout.zxingscanneractivitylayout = global::ExpiringBarcodeDemo.Resource.Layout.zxingscanneractivitylayout;
+			global::ZXing.Mobile.Resource.Layout.zxingscannerfragmentlayout = global::ExpiringBarcodeDemo.Resource.Layout.zxingscannerfragmentlayout;
 		}
 		
 		public partial class Attribute

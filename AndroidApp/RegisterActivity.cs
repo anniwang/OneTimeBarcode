@@ -9,9 +9,9 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using AndroidApp.Handler;
+using ExpiringBarcodeDemo.Handler;
 
-namespace AndroidApp
+namespace ExpiringBarcodeDemo
 {
     [Activity(Label = "Register")]
     public class RegisterActivity : Activity

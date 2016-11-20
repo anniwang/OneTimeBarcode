@@ -4,11 +4,12 @@ using Android.App;
 using Android.Content;
 using Android.Widget;
 using Android.OS;
-using AndroidApp.Handler;
+using ExpiringBarcodeDemo.Handler;
+using ExpiringBarcodeDemo;
 using Xamarin.Auth;
 
 
-namespace AndroidApp
+namespace ExpiringBarcodeDemo
 {
     [Activity(Label = "Please Log In")]
     public class LoginActivity : Activity

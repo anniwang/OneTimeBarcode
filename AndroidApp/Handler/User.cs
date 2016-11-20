@@ -11,7 +11,7 @@ using Android.Views;
 using Android.Widget;
 using Xamarin.Auth;
 
-namespace AndroidApp.Handler
+namespace ExpiringBarcodeDemo.Handler
 {
     public class User
     {
