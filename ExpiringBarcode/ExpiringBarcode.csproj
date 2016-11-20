@@ -287,6 +287,8 @@
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Properties\PublishProfiles\expiringbarcodedemo - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\expiringbarcodedemo - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -313,12 +315,16 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Validate\Index.cshtml" />
+    <Content Include="Views\Validate\NotValidFormat.cshtml" />
+    <Content Include="Views\Validate\UnAuthorized.cshtml" />
+    <Content Include="Views\Validate\Authorized.cshtml" />
+    <Content Include="Views\Validate\_ScannerPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Base\" />
     <Folder Include="Views\Member\" />
-    <Folder Include="Views\Validate\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

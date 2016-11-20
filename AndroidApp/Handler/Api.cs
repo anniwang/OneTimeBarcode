@@ -17,7 +17,7 @@ namespace AndroidApp.Handler
 {
     public class Api
     {
-        private const string serverUrl = "http://192.168.0.16:8080/";
+        private const string serverUrl = "http://expiringbarcodedemo.gear.host/";
 
         private string token;
         private User user;
@@ -70,7 +70,14 @@ namespace AndroidApp.Handler
 
         public async Task LogOut()
         {
-            await PostApi<string>("api/Account/Logout", null, authenticate: true);
+            try
+            {
+                await PostApi<string>("api/Account/Logout", null, authenticate: true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                //loggin out. so unauthorizedaccess doesn't matter.
+            }
         }
 
         public async Task RequestSharedKey()

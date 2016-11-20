@@ -11,12 +11,17 @@ namespace ExpiringBarcode.Controllers
 {
     public class ValidateController : BaseController
     {
+        public ActionResult Index()
+        {
+            return View();
+        }
+
         // GET: Validate
-        public string Index(string barcode)
+        public ActionResult Check(string barcode)
         {
             if (barcode.Length != 12 + TOTP.digits || barcode.Any(a=>!"0123456789".Contains(a)))
             {
-                return "data not in correct format";
+                return View("NotValidFormat");
             }
 
             var memberId = barcode.Substring(0, 12);
@@ -24,18 +29,18 @@ namespace ExpiringBarcode.Controllers
             var member = UserManager.Users.FirstOrDefault(a => a.MembershipNumber.Equals(memberId));
             if (member == null)
             {
-                return "Not Authorized";
+                return View("UnAuthorized");
             }
             if (member.SharedBarcodeSecret == null)
             {
-                return "Not Authorized";
+                return View("UnAuthorized");
             }
             var totp = new TOTP(member.SharedBarcodeSecret);
             if (totp.ConfirmCode(code))
             {
-                return "Authorized! \n User: " + member.Email;
+                return View("Authorized",member);
             }
-            return "Not Authorizd";
+            return View("UnAuthorized");
         }
     }
 }

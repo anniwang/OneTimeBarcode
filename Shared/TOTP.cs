@@ -12,7 +12,7 @@ namespace Shared
     {
         public const int digits = 8; // digits of code
         public const int period = 10; // interval for new TOTP in seconds
-        public const int tolerance = 1; // how many cycles back to tolerate
+        public const int tolerance = 1; // how many cycles either back or ahead to tolerate
         private byte[] secret;
         private TimeBasedPasswordGenerator totp;
 
@@ -41,7 +41,11 @@ namespace Shared
                 var tmpTotp = new TimeBasedPasswordGenerator(true, this.secret);
                 tmpTotp.TimeInterval = TimeSpan.FromSeconds(period);
                 tmpTotp.Timestamp = time.AddSeconds(-period);
-
+                if (tmpTotp.GeneratedPassword.Equals(code))
+                {
+                    return true;
+                }
+                tmpTotp.Timestamp = time.AddSeconds(period);
                 if (tmpTotp.GeneratedPassword.Equals(code))
                 {
                     return true;
