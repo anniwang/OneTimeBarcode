@@ -19,7 +19,7 @@ namespace ExpiringBarcode.Controllers
         // GET: Validate
         public ActionResult Check(string barcode)
         {
-            if (barcode.Length != 12 + TOTP.digits || barcode.Any(a=>!"0123456789".Contains(a)))
+            if (barcode.Length != 12 + TOTP.digits || barcode.Any(a => !"0123456789".Contains(a)))
             {
                 return View("NotValidFormat");
             }
@@ -38,7 +38,7 @@ namespace ExpiringBarcode.Controllers
             var totp = new TOTP(member.SharedBarcodeSecret);
             if (totp.ConfirmCode(code))
             {
-                return View("Authorized",member);
+                return View("Authorized", member);
             }
             return View("UnAuthorized");
         }

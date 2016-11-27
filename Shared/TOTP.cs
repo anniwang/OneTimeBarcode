@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -32,6 +33,7 @@ namespace Shared
         public bool ConfirmCode(string code)
         {
             var time = DateTime.UtcNow;
+            Debug.WriteLine(time);
             if (this.totp.GeneratedPassword.Equals(code))
             {
                 return true;
@@ -40,13 +42,11 @@ namespace Shared
             {
                 var tmpTotp = new TimeBasedPasswordGenerator(true, this.secret);
                 tmpTotp.TimeInterval = TimeSpan.FromSeconds(period);
-                tmpTotp.Timestamp = time.AddSeconds(-period);
-                if (tmpTotp.GeneratedPassword.Equals(code))
-                {
-                    return true;
-                }
-                tmpTotp.Timestamp = time.AddSeconds(period);
-                if (tmpTotp.GeneratedPassword.Equals(code))
+                tmpTotp.PasswordLength = digits;
+                time = time.AddSeconds(-period);
+                tmpTotp.Timestamp = time;
+                var checkcode = tmpTotp.GeneratedPassword;
+                if (checkcode.Equals(code))
                 {
                     return true;
                 }
